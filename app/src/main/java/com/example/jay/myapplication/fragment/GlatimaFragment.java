@@ -1,10 +1,8 @@
 package com.example.jay.myapplication.fragment;
 
 import com.example.jay.myapplication.Constants;
+import com.google.firebase.database.DatabaseReference;
 
-/**
- * Created by Jay on 2017/7/6.
- */
 
 public class GlatimaFragment extends ImageListFragment {
 
@@ -13,9 +11,15 @@ public class GlatimaFragment extends ImageListFragment {
 
     }
 
+    //    @Override
+//    public Query getTypeQuery(DatabaseReference databaseReference) {
+//        return databaseReference.child(Constants.DATABASE_PATH_FOLDER).child(Constants.COSMO);
+//    }
+
     @Override
-    public String getTypeQuery() {
-        return Constants.GLATIMA;
+    public DatabaseReference getTypeQuery(DatabaseReference databaseReference) {
+        return databaseReference.child(Constants.DATABASE_PATH_FOLDER).child(Constants.GLATIMA);
     }
+
 
 }

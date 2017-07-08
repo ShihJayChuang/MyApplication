@@ -1,4 +1,4 @@
-package com.example.jay.myapplication;
+package com.example.jay.myapplication.Activity;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 
+import com.example.jay.myapplication.R;
 import com.example.jay.myapplication.fragment.CosmoFragment;
 import com.example.jay.myapplication.fragment.DecoFragment;
 import com.example.jay.myapplication.fragment.GlatimaFragment;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         };
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mPagerAdapter);
-
+        //mViewPager.setOffscreenPageLimit(2);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 

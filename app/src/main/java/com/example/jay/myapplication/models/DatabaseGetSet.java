@@ -1,25 +1,25 @@
-package com.example.jay.myapplication;
+package com.example.jay.myapplication.models;
 
 public class DatabaseGetSet {
 
     //型號
-    private String type;
+    //public String type;
     //型號名稱
-    private String typeName;
+    public String typeName;
     //相片檔名
-    private String imageName;
+    public String imageName;
     //相片Url
-    private String pathUrl;
+    public String pathUrl;
     //縮圖Url
-    private String thumbPathUrl;
+    public String thumbPathUrl;
 
     public DatabaseGetSet() {
 
     }
 
-    public DatabaseGetSet(String type, String typeName, String imageName, String pathUrl, String thumbPathUrl) {
+    public DatabaseGetSet(String typeName, String imageName, String pathUrl, String thumbPathUrl) {
         //this(type, typeName, imageName, pathUrl);
-        this.type = type;
+        //this.type = type;
         this.typeName = typeName;
         this.imageName = imageName;
         this.pathUrl = pathUrl;
@@ -32,7 +32,7 @@ public class DatabaseGetSet {
 //    }
 //
 //    public DatabaseGetSet(String type, String typeName, String imageName) {
-//        this(typeName,"");
+//        this(typeName, "");
 //        this.type = type;
 //        this.imageName = imageName;
 //        this.thumbPathUrl = "";
@@ -46,9 +46,9 @@ public class DatabaseGetSet {
 //        this.thumbPathUrl = "";
 //    }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+//    public void setType(String type) {
+//        this.type = type;
+//    }
 
     public void setTypeName(String typeName) {
         this.typeName = typeName;
@@ -67,9 +67,9 @@ public class DatabaseGetSet {
     }
 
 
-    public String getType() {
-        return type;
-    }
+//    public String getType() {
+//        return type;
+//    }
 
     public String getTypeName() {
         return typeName;
@@ -86,5 +86,7 @@ public class DatabaseGetSet {
     public String getThumbPathUrl() {
         return thumbPathUrl;
     }
+
+
 
 }

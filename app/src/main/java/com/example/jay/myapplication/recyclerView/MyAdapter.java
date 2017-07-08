@@ -7,8 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.bumptech.glide.Glide;
-import com.example.jay.myapplication.DatabaseGetSet;
 import com.example.jay.myapplication.R;
+import com.example.jay.myapplication.models.DatabaseGetSet;
 
 import java.util.List;
 
@@ -18,6 +18,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
     private List<DatabaseGetSet> databaseGetSets;
     private RecyclerView recyclerView;
     private OnItemClickListener listener;
+    private OnItemLongClickListener longClickListener;
+
 
     public MyAdapter(Context context, List<DatabaseGetSet> databaseGetSets) {
         this.context = context;
@@ -58,11 +60,23 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
                 }
             }
         });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                if (longClickListener != null && v != null && recyclerView != null) {
+                    int position = recyclerView.getChildAdapterPosition(v);
+                    longClickListener.onItemLongClick(recyclerView, v, position);
+                    return true;
+                }
+                return false;
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return databaseGetSets.size();
+        return databaseGetSets == null ? 0 : databaseGetSets.size();
 
     }
 
@@ -71,8 +85,17 @@ public class MyAdapter extends RecyclerView.Adapter<MyViewHolder> {
         void onItemClick(RecyclerView parent, View view, int position);
     }
 
+    public interface OnItemLongClickListener {
+        boolean onItemLongClick(RecyclerView parent, View view, int position);
+
+    }
+
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
+    }
+
+    public void setOnItemLongClickListener(OnItemLongClickListener longClickListener) {
+        this.longClickListener = longClickListener;
     }
 }
