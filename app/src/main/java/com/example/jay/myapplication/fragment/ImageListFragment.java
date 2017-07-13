@@ -1,7 +1,10 @@
 package com.example.jay.myapplication.fragment;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,6 +40,7 @@ public abstract class ImageListFragment extends Fragment {
     private RecyclerView recyclerView;
     private LinearLayoutManager mManager;
     private ProgressDialog progressDialog;
+    private static boolean isTimeout = true;
 
     public ImageListFragment() {
     }
@@ -59,8 +63,7 @@ public abstract class ImageListFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-
+        isNetworkConnected();
         mManager = new LinearLayoutManager(getActivity());
         mManager.setReverseLayout(true);
         mManager.setStackFromEnd(true);
@@ -68,7 +71,7 @@ public abstract class ImageListFragment extends Fragment {
 
         showProgressDialog();
         showData(savedInstanceState);
-        //Query typeQuery = getTypeQuery(databaseReference);
+//        Query typeQuery = getTypeQuery(databaseReference);
 //        typeQuery.limitToLast(200).addValueEventListener(new ValueEventListener() {
 //            @Override
 //            public void onDataChange(DataSnapshot dataSnapshot) {
@@ -124,96 +127,122 @@ public abstract class ImageListFragment extends Fragment {
         typeQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                isTimeout = false;
+                if (isTimeout == false) {
+                    getNetData(dataSnapshot);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
                 hideProgressDialog();
-                if (databaseGetSets.size() != 0) {
-                    databaseGetSets.clear();
-                }
-                progressDialog.dismiss();
+                isTimeout = true;
+            }
+        });
 
-                Iterable<DataSnapshot> dataSnapshotChildren1 = dataSnapshot.getChildren();
-                for (DataSnapshot dataSnapshotChildren2 : dataSnapshotChildren1) {
-                    String key1 = dataSnapshotChildren2.getKey();
-                    //Log.e("jay", "key1 Type:" + key1);
-                    databaseGetSet = new DatabaseGetSet();
-                    databaseGetSet.setTypeName(dataSnapshotChildren2.getKey());
-                    Iterable<DataSnapshot> dataSnapshotChildren3 = dataSnapshotChildren2.getChildren();
-                    for (DataSnapshot dataSnapshotChildren4 : dataSnapshotChildren3) {
+    }
 
-                        String key2 = dataSnapshotChildren4.getKey();
-                        //Log.e("jay", "key2 Hash key:" + key2);
+    private void getNetData(DataSnapshot dataSnapshot) {
+        hideProgressDialog();
+        if (databaseGetSets.size() != 0) {
+            databaseGetSets.clear();
+        }
+        progressDialog.dismiss();
 
-                        Iterable<DataSnapshot> dataSnapshotChildren5 = dataSnapshotChildren4.getChildren();
-                        for (DataSnapshot dataSnapshotChildren6 : dataSnapshotChildren5) {
-                            dataSnapshotChildren6.child(key2);
-                            String key3 = dataSnapshotChildren6.getKey();
-                            //Log.e("jay", "key3:" + key3);
-                            if (key3.equals(Constants.IMAGENAME)) {
-                                //imageName
-                                databaseGetSet.setImageName(dataSnapshotChildren6.getValue().toString());
-                            }
-                            if (key3.equals(Constants.PATHURL)) {
-                                //pathUrl
-                                databaseGetSet.setPathUrl(dataSnapshotChildren6.getValue().toString());
-                            }
-                            if (key3.equals(Constants.THUMBPATHURL)) {
-                                //thumbPathUrl
-                                databaseGetSet.setThumbPathUrl(dataSnapshotChildren6.getValue().toString());
-                            }
-                        }
-                        databaseGetSets.add(databaseGetSet);
+        Iterable<DataSnapshot> dataSnapshotChildren1 = dataSnapshot.getChildren();
+        for (DataSnapshot dataSnapshotChildren2 : dataSnapshotChildren1) {
+            String key1 = dataSnapshotChildren2.getKey();
+            //Log.e("jay", "key1 Type:" + key1);
+            databaseGetSet = new DatabaseGetSet();
+            databaseGetSet.setTypeName(dataSnapshotChildren2.getKey());
+            Iterable<DataSnapshot> dataSnapshotChildren3 = dataSnapshotChildren2.getChildren();
+            for (DataSnapshot dataSnapshotChildren4 : dataSnapshotChildren3) {
 
+                String key2 = dataSnapshotChildren4.getKey();
+                //Log.e("jay", "key2 Hash key:" + key2);
 
+                Iterable<DataSnapshot> dataSnapshotChildren5 = dataSnapshotChildren4.getChildren();
+                for (DataSnapshot dataSnapshotChildren6 : dataSnapshotChildren5) {
+                    dataSnapshotChildren6.child(key2);
+                    String key3 = dataSnapshotChildren6.getKey();
+                    //Log.e("jay", "key3:" + key3);
+                    if (key3.equals(Constants.IMAGENAME)) {
+                        //imageName
+                        databaseGetSet.setImageName(dataSnapshotChildren6.getValue().toString());
+                    }
+                    if (key3.equals(Constants.PATHURL)) {
+                        //pathUrl
+                        databaseGetSet.setPathUrl(dataSnapshotChildren6.getValue().toString());
+                    }
+                    if (key3.equals(Constants.THUMBPATHURL)) {
+                        //thumbPathUrl
+                        databaseGetSet.setThumbPathUrl(dataSnapshotChildren6.getValue().toString());
                     }
                 }
-                adapter = new MyAdapter(getActivity(), databaseGetSets);
-                Log.e("jay", "databaseGetSets.size():" + databaseGetSets.size() + "");
-                recyclerView.setAdapter(adapter);
-                adapter.notifyDataSetChanged();
+                databaseGetSets.add(databaseGetSet);
 
-                adapter.setOnItemClickListener(new MyAdapter.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(RecyclerView parent, View view, int position) {
-                        Log.e("jay", databaseGetSets.get(position).getTypeName());
-                        Intent intent = new Intent(getActivity(), SingleImageActivity.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString(Constants.TYPENAME, databaseGetSets.get(position).getTypeName());
-                        bundle.putString(Constants.IMAGENAME, databaseGetSets.get(position).getImageName());
-                        bundle.putString(Constants.PATHURL, databaseGetSets.get(position).getPathUrl());
-                        bundle.putString(Constants.THUMBPATHURL, databaseGetSets.get(position).getThumbPathUrl());
-                        intent.putExtras(bundle);
-                        startActivity(intent);
-                    }
-                });
 
-                adapter.setOnItemLongClickListener(new MyAdapter.OnItemLongClickListener() {
-                    @Override
-                    public boolean onItemLongClick(RecyclerView parent, View view, int position) {
-                        Log.e("jay", "LongClick " + databaseGetSets.get(position).getTypeName());
-                        return true;
-                    }
-                });
+            }
+        }
+        adapter = new MyAdapter(getActivity(), databaseGetSets);
+        Log.e("jay", "databaseGetSets.size():" + databaseGetSets.size() + "");
+        recyclerView.setAdapter(adapter);
+        //adapter.notifyDataSetChanged();
+
+        adapter.setOnItemClickListener(new MyAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(RecyclerView parent, View view, int position) {
+                Log.e("jay", databaseGetSets.get(position).getTypeName());
+                Intent intent = new Intent(getActivity(), SingleImageActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString(Constants.TYPENAME, databaseGetSets.get(position).getTypeName());
+                bundle.putString(Constants.IMAGENAME, databaseGetSets.get(position).getImageName());
+                bundle.putString(Constants.PATHURL, databaseGetSets.get(position).getPathUrl());
+                bundle.putString(Constants.THUMBPATHURL, databaseGetSets.get(position).getThumbPathUrl());
+                intent.putExtras(bundle);
+                startActivity(intent);
+            }
+        });
+
+        adapter.setOnItemLongClickListener(new MyAdapter.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(RecyclerView parent, View view, int position) {
+                Log.e("jay", "LongClick " + databaseGetSets.get(position).getTypeName());
+                return true;
+            }
+        });
 
 //                Log.e("jay", "0,getType():" + databaseGetSets.get(0).getType());
 //                Log.e("jay", "0,getTypeName():" + databaseGetSets.get(0).getTypeName());
 //                Log.e("jay", "0,getImageName():" + databaseGetSets.get(0).getImageName());
 //                Log.e("jay", "0,getPathUrl():" + databaseGetSets.get(0).getPathUrl());
 //                Log.e("jay", "0,getThumbPathUrl():" + databaseGetSets.get(0).getThumbPathUrl());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                hideProgressDialog();
-            }
-        });
-
     }
 
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo nInfo = cm.getActiveNetworkInfo();
+        if (nInfo != null && nInfo.getState() == NetworkInfo.State.CONNECTED) {
+            return true;
+        } else
+            return false;
+    }
+
+    public static boolean isTimeout() {
+        return isTimeout;
+    }
 
     public void showProgressDialog() {
         if (progressDialog == null) {
             progressDialog = new ProgressDialog(getActivity());
             progressDialog.setMessage(getString(R.string.process_dialog_wait));
+            progressDialog.setCancelable(false);
             progressDialog.show();
+            if (!isNetworkConnected() && progressDialog.isShowing() && !isTimeout) {
+                progressDialog.dismiss();
+            }
+
         }
     }
 
@@ -229,9 +258,12 @@ public abstract class ImageListFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        isTimeout = true;
+        hideProgressDialog();
+
 //        if (mAdapter != null) {
 //            mAdapter.cleanup();
 //        }
-
     }
+
 }
