@@ -29,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private FragmentPagerAdapter mPagerAdapter;
     private ViewPager mViewPager;
     private CountDownTimer countDownTimer;
-    private AlertDialog.Builder ab;
+    private AlertDialog alert = null; //設定alert為窗體級變數
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         isNetworkConnected();
-
         mPagerAdapter = new FragmentPagerAdapter(getSupportFragmentManager()) {
             private final Fragment[] mFragments = new Fragment[]{
                     new CosmoFragment(),
@@ -72,9 +71,6 @@ public class MainActivity extends AppCompatActivity {
         //mViewPager.setOffscreenPageLimit(2);
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        timeOutDialog();
-
     }
 
     private boolean isNetworkConnected() {
@@ -97,41 +93,47 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFinish() {
-                if (ImageListFragment.isTimeout() == true) {
-
-                    ab = new AlertDialog.Builder(MainActivity.this);
-                    ab.setTitle("網路連線狀況");
-                    ab.setMessage("網路連線問題");
-                    ab.setCancelable(false);
-                    ab.setPositiveButton("前往設定頁面", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(Settings.ACTION_SETTINGS);
-                            startActivity(intent);
-                        }
-                    });
-                    ab.setNeutralButton("等待", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(MainActivity.this, "等待", Toast.LENGTH_LONG).show();
-                            timeOutDialog();
-                        }
-                    });
-                    ab.setNegativeButton("關閉", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(MainActivity.this, "關閉", Toast.LENGTH_LONG).show();
-                            finish();
-                        }
-                    });
-                    ab.show();
-
-
+                if (ImageListFragment.isTimeout()) {
+                    if (alert == null) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                        builder.setTitle("網路連線狀況");
+                        builder.setMessage("網路連線問題");
+                        builder.setCancelable(false);
+                        builder.setPositiveButton("前往設定頁面", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Intent intent = new Intent(Settings.ACTION_SETTINGS);
+                                startActivity(intent);
+                            }
+                        });
+                        builder.setNeutralButton("等待", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(MainActivity.this, "等待", Toast.LENGTH_LONG).show();
+                                timeOutDialog();
+                            }
+                        });
+                        builder.setNegativeButton("關閉", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(MainActivity.this, "關閉", Toast.LENGTH_LONG).show();
+                                finish();
+                            }
+                        });
+                        alert = builder.create();
+                    }
+                    alert.show();
                 }
                 Log.e("jay", "ImageListFragment.isTimeout(): " + ImageListFragment.isTimeout());
             }
         };
         countDownTimer.start();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        timeOutDialog();
     }
 
     @Override

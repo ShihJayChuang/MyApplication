@@ -128,10 +128,7 @@ public abstract class ImageListFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 isTimeout = false;
-                if (isTimeout == false) {
-                    getNetData(dataSnapshot);
-
-                }
+                getNetData(dataSnapshot);
             }
 
             @Override
